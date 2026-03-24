@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mainstreethost · GEO Visibility Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1e2a3a;
+  --ink2: #243040;
+  --ink3: #2d3d50;
+  --surface: #f4f3f0;
+  --surface2: #eae9e4;
+  --surface3: #dddbd4;
+  --white: #ffffff;
+  --text: #0f1117;
+  --text2: #4a4f63;
+  --text3: #8b90a4;
+  --msh: #2bbfbf;
+  --msh2: #22a8a8;
+  --msh-light: #edfafa;
+  --msh-mid: rgba(43,191,191,0.12);
+  --green: #1a9e6e;
+  --green-bg: #edfaf4;
+  --amber: #c47a00;
+  --amber-bg: #fff8e6;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #2563eb;
+  --blue-bg: #eff4ff;
+  --border: rgba(15,17,23,0.08);
+  --border2: rgba(15,17,23,0.14);
+  --shadow: 0 1px 3px rgba(15,17,23,0.08), 0 4px 12px rgba(15,17,23,0.04);
+  --shadow-lg: 0 4px 16px rgba(15,17,23,0.10), 0 1px 4px rgba(15,17,23,0.06);
+  --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --r: 8px;
+  --r2: 12px;
+  --r3: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--surface); color: var(--text); min-height: 100vh; display: flex; font-size: 14px; line-height: 1.5; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 228px; min-height: 100vh; background: var(--ink);
+  display: flex; flex-direction: column; flex-shrink: 0;
+  position: sticky; top: 0; height: 100vh;
+}
+.sidebar-header { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.msh-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.msh-badge { 
+  
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 4px 8px; border-radius: 5px;
+}
+.msh-title { font-family: var(--display); font-size: 13px; font-weight: 600; color: #fff; letter-spacing: -0.2px; }
+.msh-sub { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.4px; margin-top: 2px; text-transform: uppercase; }
+
+.nav { padding: 14px 10px; flex: 1; overflow-y: auto; }
+.nav-group { margin-bottom: 22px; }
+.nav-group-label { font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.28); letter-spacing: 1px; text-transform: uppercase; padding: 0 10px; margin-bottom: 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+  border-radius: var(--r); cursor: pointer; font-size: 13px;
+  color: rgba(255,255,255,0.5); transition: all 0.12s; margin-bottom: 1px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.nav-item.active { background: rgba(43,191,191,0.15); color: #fff; }
+.nav-item.active .nav-dot { background: var(--msh); }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); flex-shrink: 0; transition: background 0.12s; }
+.nav-count { margin-left: auto; font-size: 11px; font-family: var(--mono); color: rgba(255,255,255,0.3); }
+.nav-count.hot { background: var(--msh); color: #fff; padding: 1px 6px; border-radius: 10px; }
+
+.sidebar-footer { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.07); }
+.am-row { display: flex; align-items: center; gap: 9px; cursor: pointer; padding: 6px 4px; border-radius: var(--r); transition: background 0.12s; }
+.am-row:hover { background: rgba(255,255,255,0.06); }
+.am-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--msh); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.am-name { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.8); }
+.am-role { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+.am-edit-icon { margin-left: auto; opacity: 0.3; }
+
+/* ── Main ── */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 0 28px; height: 58px; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0; position: sticky; top: 0; z-index: 10;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.page-title { font-family: var(--display); font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--r); border: none; cursor: pointer; font-family: var(--font); font-size: 13px; font-weight: 500; transition: all 0.12s; white-space: nowrap; }
+.btn-primary { background: var(--msh); color: #fff; }
+.btn-primary:hover { background: var(--msh2); }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--text2); }
+.btn-ghost:hover { background: var(--surface2); color: var(--text); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon { width: 34px; height: 34px; padding: 0; justify-content: center; border: 1px solid var(--border2); background: transparent; border-radius: var(--r); color: var(--text2); cursor: pointer; }
+.btn-icon:hover { background: var(--surface2); }
+
+/* ── Content ── */
+.content { flex: 1; overflow-y: auto; padding: 28px; }
+
+/* ── Panel system ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Section header ── */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.section-title { font-family: var(--display); font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.1px; }
+.section-meta { font-size: 12px; color: var(--text3); }
+
+/* ── Stat cards ── */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r2);
+  padding: 18px 20px; position: relative; overflow: hidden;
+}
+.stat-card::before { content:""; position:absolute; top:0; left:0; right:0; height:3px; background: var(--msh); opacity: 0; transition: opacity 0.2s; }
+.stat-card:hover::before { opacity: 1; }
+.stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+.stat-value { font-family: var(--display); font-size: 30px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; color: var(--text); }
+.stat-delta { font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+.delta-up { color: var(--green); }
+.delta-dn { color: var(--red); }
+.delta-flat { color: var(--text3); }
+
+/* ── Cards ── */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r2); padding: 20px; }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-title { font-family: var(--display); font-size: 13px; font-weight: 700; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 20px; }
+
+/* ── Upload zone ── */
+.upload-zone {
+  border: 2px dashed var(--border2); border-radius: var(--r2);
+  padding: 40px 28px; text-align: center; cursor: pointer;
+  transition: all 0.15s; background: var(--white); margin-bottom: 20px;
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--msh); background: var(--msh-light); }
+.upload-icon { font-size: 32px; margin-bottom: 10px; }
+.upload-title { font-family: var(--display); font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.upload-sub { font-size: 13px; color: var(--text3); }
+.upload-hint { font-size: 11px; color: var(--text3); margin-top: 10px; font-family: var(--mono); background: var(--surface2); padding: 4px 10px; border-radius: 4px; display: inline-block; }
+#csvFile { display: none; }
+
+/* ── Client table ── */
+.client-table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; }
+.client-table { width: 100%; border-collapse: collapse; }
+.client-table th {
+  text-align: left; font-size: 11px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 14px;
+  background: var(--surface); border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.client-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+.client-table tr:last-child td { border-bottom: none; }
+.client-table tbody tr { cursor: pointer; transition: background 0.1s; }
+.client-table tbody tr:hover td { background: var(--surface); }
+.client-name-cell { display: flex; align-items: center; gap: 10px; }
+.client-initials { width: 32px; height: 32px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 11px; font-weight: 800; flex-shrink: 0; }
+.client-name-text { font-weight: 500; font-size: 13px; }
+.client-domain { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.client-location { font-size: 12px; color: var(--text2); }
+.client-industry { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--surface2); color: var(--text2); font-weight: 500; display: inline-block; }
+
+/* Score display */
+.mention-count { font-family: var(--display); font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+.mention-na { font-size: 12px; color: var(--text3); }
+.vis-score { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; font-family: var(--display); font-size: 14px; font-weight: 800; }
+.score-a { background: var(--green-bg); color: var(--green); }
+.score-b { background: var(--amber-bg); color: var(--amber); }
+.score-c { background: var(--red-bg); color: var(--red); }
+.score-none { background: var(--surface2); color: var(--text3); font-size: 12px; }
+
+/* Platform pills */
+.plat-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.plat-pill { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border2); color: var(--text3); font-family: var(--mono); }
+.plat-pill.w { background: #ecfdf5; color: #166534; border-color: #bbf7d0; }
+.plat-pill.l { background: var(--red-bg); color: var(--red); border-color: #fecaca; }
+.plat-pill.p { background: var(--surface2); color: var(--text3); }
+
+/* Table actions */
+.row-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+.client-table tbody tr:hover .row-actions { opacity: 1; }
+
+/* ── Mention spotlight (client detail) ── */
+.mention-hero {
+  background: var(--ink); color: #fff; border-radius: var(--r2);
+  padding: 28px 32px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
+}
+.mention-hero-left { flex: 1; }
+.mention-hero-client { font-family: var(--display); font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.mention-hero-number { font-family: var(--display); font-size: 64px; font-weight: 800; letter-spacing: -3px; line-height: 1; color: #fff; }
+.mention-hero-label { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+.mention-hero-score { text-align: center; }
+.mention-hero-score-val { font-family: var(--display); font-size: 48px; font-weight: 800; color: var(--msh); letter-spacing: -2px; line-height: 1; }
+.mention-hero-score-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Platform breakdown bars */
+.plat-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.plat-bar-name { font-size: 12px; font-weight: 500; width: 120px; flex-shrink: 0; color: var(--text2); }
+.plat-bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.plat-bar-fill { height: 100%; border-radius: 4px; transition: width 0.7s cubic-bezier(0.22,1,0.36,1); }
+.plat-bar-mentions { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text); width: 50px; text-align: right; }
+
+/* Evidence cards */
+.evidence-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r2); padding: 16px; margin-bottom: 12px; }
+.evidence-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.evidence-platform { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; font-family: var(--mono); }
+.plat-chatgpt { background: #ecfdf5; color: #166534; }
+.plat-perplexity { background: #eff4ff; color: #1d4ed8; }
+.plat-google { background: #fff7ed; color: #c2410c; }
+.plat-bing { background: #f0f9ff; color: #0369a1; }
+.evidence-prompt { font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 8px; line-height: 1.4; }
+.evidence-excerpt { font-size: 12px; color: var(--text2); line-height: 1.6; border-left: 3px solid var(--msh); padding-left: 10px; background: var(--surface); padding: 8px 12px; border-radius: 0 var(--r) var(--r) 0; }
+.evidence-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.etag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+.etag-first { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.etag-cited { background: var(--blue-bg); color: var(--blue); border: 1px solid #bfdbfe; }
+.etag-mentioned { background: var(--msh-light); color: var(--msh); border: 1px solid #fecaca; }
+.etag-absent { background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; }
+.etag-position { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+
+/* Mention count highlight in excerpt */
+.mention-highlight { background: #fef9c3; border-radius: 2px; padding: 0 2px; font-weight: 600; color: #854d0e; }
+
+/* ── Modals ── */
+.backdrop { position: fixed; inset: 0; background: rgba(15,17,23,0.5); z-index: 200; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.backdrop.open { display: flex; }
+.modal { background: var(--white); border-radius: var(--r3); padding: 32px; width: 580px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+.modal-sm { width: 420px; }
+.modal-title { font-family: var(--display); font-size: 18px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; line-height: 1.5; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+/* Forms */
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.field-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.field-input {
+  background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r);
+  padding: 9px 12px; font-family: var(--font); font-size: 13px; color: var(--text); outline: none; width: 100%;
+}
+.field-input:focus { border-color: var(--msh); background: var(--white); }
+.field-input::placeholder { color: var(--text3); }
+select.field-input { cursor: pointer; }
+.field-error { font-size: 12px; color: var(--red); margin-top: -8px; display: none; }
+
+/* Checkbox row */
+.check-group { display: flex; flex-wrap: wrap; gap: 10px; }
+.check-label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.check-label input { accent-color: var(--msh); width: 14px; height: 14px; }
+
+/* Alert banner */
+.alert-banner { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--r); margin-bottom: 20px; font-size: 13px; }
+.alert-info { background: var(--blue-bg); border: 1px solid #bfdbfe; color: #1e40af; }
+.alert-warn { background: var(--amber-bg); border: 1px solid #fde68a; color: #92400e; }
+.alert-success { background: var(--green-bg); border: 1px solid #a7f3d0; color: #065f46; }
+
+/* Sparkline canvas */
+.spark { display: block; }
+
+/* CSV preview table */
+.preview-wrap { border: 1px solid var(--border); border-radius: var(--r); overflow: auto; max-height: 200px; margin-bottom: 14px; }
+.preview-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.preview-table th { background: var(--surface); padding: 6px 10px; border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text3); text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; white-space: nowrap; }
+.preview-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); color: var(--text2); }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 60px 28px; color: var(--text3); }
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+.empty-state-title { font-family: var(--display); font-size: 16px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+.empty-state-sub { font-size: 13px; }
+
+/* Report view */
+.report-header { background: var(--ink); color: #fff; border-radius: var(--r2); padding: 32px; margin-bottom: 20px; }
+.report-logo { font-family: var(--display); font-size: 11px; font-weight: 700; color: var(--msh); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.report-client { font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+.report-date { font-size: 13px; color: rgba(255,255,255,0.4); }
+.report-kpis { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 24px; }
+.report-kpi { background: rgba(255,255,255,0.06); border-radius: var(--r); padding: 14px 16px; }
+.report-kpi-val { font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+.report-kpi-label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.report-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--r2); padding: 20px; margin-bottom: 16px; }
+.report-section-title { font-family: var(--display); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text3); margin-bottom: 14px; }
+.win-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.win-item:last-child { border-bottom: none; }
+.win-bullet { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; margin-top: 1px; }
+.win-green { background: var(--green-bg); color: var(--green); }
+.win-red { background: var(--red-bg); color: var(--red); }
+.win-amber { background: var(--amber-bg); color: var(--amber); }
+
+/* Tooltip */
+.tooltip-tip { position: fixed; background: var(--ink); color: #fff; font-size: 11px; padding: 5px 10px; border-radius: 5px; pointer-events: none; z-index: 300; display: none; white-space: nowrap; }
+
+/* Print / PDF styles */
+@media print {
+  @page { size: A4; margin: 12mm 14mm; }
+
+  /* Force backgrounds & colors to print */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+
+  /* Hide everything that isn't the report */
+  .sidebar, .topbar, .section-header, .alert-banner, .modal-overlay,
+  #panel-dashboard, #panel-clients, #panel-import, #panel-evidence { display: none !important; }
+
+  /* Reset page layout */
+  body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+  .main { margin-left: 0 !important; width: 100% !important; display: block !important; }
+  .content { padding: 0 !important; margin: 0 !important; display: block !important; }
+
+  /* Hide all panels then show only report */
+  .panel { display: none !important; }
+  #panel-report { display: block !important; padding: 0 !important; margin: 0 !important; border: none !important; background: transparent !important; }
+  #reportContent { padding: 0 !important; }
+
+  /* Only avoid page breaks on small tight elements — NOT large section cards */
+  .stat-card { break-inside: avoid; }
+
+  /* Evidence result cards — keep each one together */
+  [style*="border:1px solid #d1fae5"] { break-inside: avoid; page-break-inside: avoid; }
+  [style*="border: 1px solid #d1fae5"] { break-inside: avoid; page-break-inside: avoid; }
+
+  /* The 3-stat grid and small win cards should stay together */
+  [style*="grid-template-columns:repeat(3,1fr)"] { break-inside: avoid; }
+
+  /* Prefer not to break before section headers */
+  [style*="section-title"] { break-before: avoid; }
+}
+
+/* Animations */
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:none;} }
+.fade-up { animation: fadeUp 0.25s ease both; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-header" style="padding:18px 16px 14px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <div style="width:32px;height:32px;background:var(--msh);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 13L5 2L9 9L13 2L17 13" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:800;color:#fff;letter-spacing:-0.2px;line-height:1">MAINSTREETHOST</div>
+        <div style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px">Digital Marketing Agency</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;font-weight:500;padding-top:8px;border-top:1px solid rgba(255,255,255,0.07)">GEO Visibility Tracker</div>
+  </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-group">
+      <div class="nav-group-label">Overview</div>
+      <div class="nav-item active" onclick="nav('dashboard')">
+        <div class="nav-dot"></div> Dashboard
+        <span class="nav-count hot" id="nc-clients">0</span>
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Clients</div>
+      <div class="nav-item" onclick="nav('clients')">
+        <div class="nav-dot"></div> All Clients
+      </div>
+      <div class="nav-item" onclick="openAddClient()">
+        <div class="nav-dot"></div> + Add Client
+      </div>
+      <div class="nav-item" onclick="nav('import')">
+        <div class="nav-dot"></div> Import CSV
+      </div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">GEO Work</div>
+      <div class="nav-item" onclick="nav('evidence')">
+        <div class="nav-dot"></div> Evidence Log
+      </div>
+      <div class="nav-item" onclick="nav('report')">
+        <div class="nav-dot"></div> Client Report
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="am-row" onclick="openEditAm()" title="Edit name">
+      <div class="am-avatar" id="amAv">—</div>
+      <div>
+        <div class="am-name" id="amName">Your Name</div>
+        <div class="am-role">GEO Strategist · MSH</div>
+      </div>
+      <svg class="am-edit-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M8.5 1.5l2 2-7 7H1.5v-2l7-7z" stroke="white" stroke-width="1.1" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+</nav>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title" id="pageTitle">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="nav('import')">↑ Import CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="openAddClient()">+ Add Client</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('scanJsonFile').click()" style="border-color:var(--msh);color:var(--msh)">⚡ Import Scan Results</button>
+      <input type="file" id="scanJsonFile" accept=".json" style="display:none" onchange="importScanResults(this.files[0])">
+      <button class="btn btn-primary btn-sm" onclick="nav('report')">View Report</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div id="dash-alert" class="alert-banner alert-info" style="display:none"></div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">GEO Clients</div>
+          <div class="stat-value" id="stat-clients">0</div>
+          <div class="stat-delta delta-flat">Active on GEO plan</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total AI Mentions</div>
+          <div class="stat-value" id="stat-mentions" style="color:var(--msh)">0</div>
+          <div class="stat-delta delta-flat">Across all clients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Visibility Score</div>
+          <div class="stat-value" id="stat-score">—</div>
+          <div class="stat-delta delta-flat">0–100 scale</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Industries Covered</div>
+          <div class="stat-value" id="stat-industries">0</div>
+          <div class="stat-delta delta-flat">Unique sectors</div>
+        </div>
+      </div>
+
+      <!-- Top clients by mentions -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Clients by AI Mention Count</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="openAddClient()">+ Add client</button>
+            <button class="btn btn-ghost btn-sm" onclick="nav('clients')">See all →</button>
+          </div>
+        </div>
+        <div id="dash-client-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div class="empty-state-title">No clients yet</div>
+            <div class="empty-state-sub">Import a CSV or add clients manually to get started.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform breakdown -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Mentions by Platform</div></div>
+          <div id="dash-platform-bars">
+            <div style="font-size:13px;color:var(--text3);text-align:center;padding:20px">Run scans to see platform data</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Top Industries</div></div>
+          <div id="dash-industries">
+            <div style="font-size:13px;color:var(--text3);text-align:center;padding:20px">Add clients to see industry breakdown</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTS LIST -->
+    <div class="panel" id="panel-clients">
+      <div class="section-header">
+        <div>
+          <div class="section-title">All GEO Clients</div>
+          <div class="section-meta" id="clients-meta">0 clients</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="field-input" style="width:200px" placeholder="Search clients…" id="clientSearch" oninput="renderClientTable()">
+          <button class="btn btn-ghost btn-sm" onclick="nav('import')">↑ Import CSV</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddClient()">+ Add Client</button>
+        </div>
+      </div>
+
+      <div class="client-table-wrap">
+        <table class="client-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Industry</th>
+              <th>Location(s)</th>
+              <th>AI Mentions</th>
+              <th>Visibility Score</th>
+              <th>Last Scanned</th>
+              <th>Platforms</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="clientTableBody">
+            <tr><td colspan="7"><div class="empty-state" style="padding:40px"><div class="empty-state-icon">📋</div><div class="empty-state-title">No clients yet</div><div class="empty-state-sub">Import a CSV or use the button above to add clients.</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- IMPORT CSV -->
+    <div class="panel" id="panel-import">
+      <div class="section-header">
+        <div class="section-title">Import Client List</div>
+      </div>
+
+      <div class="alert-banner alert-info" style="margin-bottom:20px">
+        <span>📄</span>
+        <span>Your CSV should have columns: <strong>name, domain, industry, location, geo_tier</strong> — all except name are optional. <a href="#" onclick="downloadTemplate()" style="color:var(--blue);text-decoration:underline">Download template</a></span>
+      </div>
+
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('csvFile').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleDrop(event)">
+        <div class="upload-icon">☁️</div>
+        <div class="upload-title">Drop your CSV here, or click to browse</div>
+        <div class="upload-sub">Supports CSV files exported from Excel, Google Sheets, or your CRM</div>
+        <div class="upload-hint">name, domain, industry, location, geo_tier</div>
+        <input type="file" id="csvFile" accept=".csv" onchange="handleCSVFile(this.files[0])">
+      </div>
+
+      <div id="csvPreviewWrap" style="display:none">
+        <div class="section-header">
+          <div class="section-title">Preview — <span id="csvRowCount">0</span> clients found</div>
+        </div>
+        <div class="preview-wrap">
+          <table class="preview-table" id="previewTable"></table>
+        </div>
+        <div id="csvImportAlert" class="alert-banner" style="display:none"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="importCSVClients()">Import all clients</button>
+          <button class="btn btn-ghost" onclick="clearCSVPreview()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVIDENCE LOG -->
+    <div class="panel" id="panel-evidence">
+      <div class="section-header">
+        <div class="section-title">Evidence Log</div>
+        <select class="field-input" style="width:200px" id="evidenceClientFilter" onchange="renderEvidence()">
+          <option value="">All clients</option>
+        </select>
+      </div>
+      <div id="evidenceList">
+        <div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-title">No evidence yet</div><div class="empty-state-sub">Add scan results from a client profile to see evidence here.</div></div>
+      </div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="panel" id="panel-report">
+      <div class="section-header">
+        <div class="section-title">Client Report</div>
+        <div style="display:flex;gap:8px">
+          <select class="field-input" style="width:200px" id="reportClientSelect" onchange="renderReport()">
+            <option value="">Select a client…</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="printReport()">⬇ Export PDF</button>
+        </div>
+      </div>
+      <div id="reportContent">
+        <div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Select a client above</div><div class="empty-state-sub">Choose a client to generate their GEO visibility report.</div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ── Add / Edit Client Modal ── -->
+<div class="backdrop" id="modalClient">
+  <div class="modal">
+    <div class="modal-title" id="modalClientTitle">Add GEO Client</div>
+    <div class="modal-sub" id="modalClientSub">Enter the client's details. You can always edit these later.</div>
+    <input type="hidden" id="editClientId">
+
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Client name *</label>
+        <input class="field-input" id="cf-name" placeholder="e.g. Riverstone Dental">
+        <div class="field-error" id="err-name">Name is required</div>
+      </div>
+      <div class="field">
+        <label class="field-label">Website domain *</label>
+        <input class="field-input" id="cf-domain" placeholder="e.g. riverstonedental.com">
+        <div class="field-error" id="err-domain">Domain is required</div>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Industry</label>
+        <input class="field-input" id="cf-industry" placeholder="e.g. Dental, HVAC, Legal">
+      </div>
+      <div class="field">
+        <label class="field-label">Location(s)</label>
+        <input class="field-input" id="cf-location" placeholder="e.g. Buffalo, NY">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Alternate brand names</label>
+        <input class="field-input" id="cf-alts" placeholder="e.g. Riverstone, Riverstone Dental Group">
+      </div>
+      <div class="field">
+        <label class="field-label">GEO tier</label>
+        <select class="field-input" id="cf-tier">
+          <option value="starter">Starter</option>
+          <option value="growth" selected>Growth</option>
+          <option value="pro">Pro</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Platforms to track</label>
+      <div class="check-group">
+        <label class="check-label"><input type="checkbox" value="ChatGPT" checked> ChatGPT Search</label>
+        <label class="check-label"><input type="checkbox" value="Perplexity" checked> Perplexity</label>
+        <label class="check-label"><input type="checkbox" value="Claude" checked> Claude (Anthropic)</label>
+        <label class="check-label"><input type="checkbox" value="Google AI"> Google AI Mode (coming soon)</label>
+        <label class="check-label"><input type="checkbox" value="Bing Copilot"> Bing Copilot</label>
+      </div>
+    </div>
+
+    <!-- Scan results entry -->
+    <div style="border-top:1px solid var(--border);margin:16px 0 14px;padding-top:16px">
+      <div class="field-label" style="margin-bottom:10px;font-size:12px">SCAN RESULTS (enter manually or after running)</div>
+      <div class="field-row">
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">Total AI mentions</label>
+          <input class="field-input" id="cf-mentions" type="number" min="0" placeholder="0">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">Visibility score (0–100)</label>
+          <input class="field-input" id="cf-score" type="number" min="0" max="100" placeholder="—">
+        </div>
+      </div>
+      <div class="field-row" style="margin-top:10px;margin-bottom:0">
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">ChatGPT mentions</label>
+          <input class="field-input" id="cf-m-chatgpt" type="number" min="0" placeholder="0">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">Perplexity mentions</label>
+          <input class="field-input" id="cf-m-perp" type="number" min="0" placeholder="0">
+        </div>
+      </div>
+      <div class="field-row" style="margin-top:10px;margin-bottom:0">
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">Claude mentions</label>
+          <input class="field-input" id="cf-m-claude" type="number" min="0" placeholder="0">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">Bing Copilot mentions</label>
+          <input class="field-input" id="cf-m-bing" type="number" min="0" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Notes for this client</label>
+      <textarea class="field-input" id="cf-notes" rows="2" placeholder="GEO strategy notes, focus keywords, competitors…"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeClientModal()">Cancel</button>
+      <button class="btn btn-primary" id="saveClientBtn" onclick="saveClient()">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Account Manager -->
+<div class="backdrop" id="modalAm">
+  <div class="modal modal-sm">
+    <div class="modal-title">Your details</div>
+    <div class="modal-sub">Shows in reports and the sidebar.</div>
+    <div class="field">
+      <label class="field-label">Your full name</label>
+      <input class="field-input" id="am-input" placeholder="e.g. Sarah Mitchell">
+    </div>
+    <div class="field">
+      <label class="field-label">Your role / title</label>
+      <input class="field-input" id="am-role-input" placeholder="e.g. GEO Strategist">
+    </div>
+    <div class="field">
+      <label class="field-label">Your email</label>
+      <input class="field-input" id="am-email-input" placeholder="e.g. sarah@mainstreethost.com">
+    </div>
+    <div class="field">
+      <label class="field-label">Your phone</label>
+      <input class="field-input" id="am-phone-input" placeholder="e.g. (716) 555-0100">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAm()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAm()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip-tip" id="tip"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let clients = [];
+let amName  = 'Your Name';
+let amRole  = 'GEO Strategist';
+let amEmail = '';
+let amPhone = '';
+let pendingCSV = [];
+let currentNav = 'dashboard';
+
+const COLORS = [
+  {bg:'#fff0ec',fg:'#2bbfbf'},
+  {bg:'#edfaf4',fg:'#1a9e6e'},
+  {bg:'#eff4ff',fg:'#2563eb'},
+  {bg:'#f5f3ff',fg:'#6d28d9'},
+  {bg:'#fff8e6',fg:'#c47a00'},
+  {bg:'#fdf2f8',fg:'#be185d'},
+  {bg:'#f0fdfa',fg:'#0f766e'},
+  {bg:'#fef2f2',fg:'#c0392b'},
+];
+
+function clientColor(idx) { return COLORS[idx % COLORS.length]; }
+
+function initials(name) {
+  return name.split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2) || '??';
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function nav(page) {
+  currentNav = page;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const panel = document.getElementById('panel-' + page);
+  if (panel) { panel.classList.add('active'); panel.classList.add('fade-up'); setTimeout(()=>panel.classList.remove('fade-up'),300); }
+  const titles = {dashboard:'Dashboard',clients:'All GEO Clients',import:'Import CSV',evidence:'Evidence Log',report:'Client Report'};
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+  // highlight nav
+  const navItems = document.querySelectorAll('.nav-item');
+  const map = {dashboard:0,clients:3,import:4,evidence:5,report:6};
+  if(map[page]!==undefined && navItems[map[page]]) navItems[map[page]].classList.add('active');
+  if(page==='clients') renderClientTable();
+  if(page==='report') populateReportSelect();
+  if(page==='evidence') renderEvidence();
+  if(page==='dashboard') renderDashboard();
+}
+
+// ─────────────────────────────────────────────
+// RENDER DASHBOARD
+// ─────────────────────────────────────────────
+function renderDashboard() {
+  document.getElementById('stat-clients').textContent = clients.length;
+  document.getElementById('nc-clients').textContent = clients.length;
+  const totalMentions = clients.reduce((s,c) => s + (c.mentions||0), 0);
+  document.getElementById('stat-mentions').textContent = totalMentions.toLocaleString();
+  const scored = clients.filter(c => c.score != null && c.score !== '');
+  const avgScore = scored.length ? Math.round(scored.reduce((s,c)=>s+(+c.score),0)/scored.length) : null;
+  document.getElementById('stat-score').textContent = avgScore != null ? avgScore : '—';
+  const industries = new Set(clients.map(c=>c.industry).filter(Boolean));
+  document.getElementById('stat-industries').textContent = industries.size;
+
+  // Client list
+  const el = document.getElementById('dash-client-list');
+  if (!clients.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">No clients yet</div><div class="empty-state-sub">Import a CSV or add clients manually to get started.</div></div>`;
+    return;
+  }
+  const sorted = [...clients].sort((a,b) => (b.mentions||0)-(a.mentions||0)).slice(0,8);
+  const max = sorted[0]?.mentions || 1;
+  el.innerHTML = `<div style="display:flex;flex-direction:column;gap:2px">` + sorted.map((c,i) => {
+    const col = clientColor(clients.indexOf(c));
+    const pct = Math.round(((c.mentions||0)/max)*100);
+    const scoreEl = scoreDisplay(c.score);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:8px 4px;border-radius:var(--r);cursor:pointer;transition:background 0.1s" 
+      onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background=''"
+      onclick="openEditClient('${c.id}')">
+      <div style="width:30px;height:30px;border-radius:7px;background:${col.bg};color:${col.fg};display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:11px;font-weight:800;flex-shrink:0">${initials(c.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
+        <div style="font-size:11px;color:var(--text3)">${c.industry||''}${c.location?' · '+c.location:''}</div>
+      </div>
+      <div style="width:120px;flex-shrink:0">
+        <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:var(--msh);border-radius:3px;transition:width 0.6s ease"></div>
+        </div>
+      </div>
+      <div style="font-family:var(--display);font-size:18px;font-weight:800;color:var(--msh);width:40px;text-align:right;flex-shrink:0">${c.mentions||'—'}</div>
+      <div style="width:44px;flex-shrink:0;display:flex;justify-content:center">${scoreEl}</div>
+    </div>`;
+  }).join('') + `</div>`;
+
+  // Platform bars
+  const platEl = document.getElementById('dash-platform-bars');
+  const plats = ['ChatGPT','Perplexity','Claude'];
+  const platKeys = ['m_chatgpt','m_perp','m_claude'];
+  const platColors = ['#22c55e','#3b82f6','#cc785c'];
+  const platTotals = platKeys.map(k => clients.reduce((s,c)=>s+(c[k]||0),0));
+  const platMax = Math.max(...platTotals,1);
+  if(platTotals.every(v=>v===0)) {
+    platEl.innerHTML = `<div style="font-size:13px;color:var(--text3);text-align:center;padding:20px">Enter scan data to see platform breakdown</div>`;
+  } else {
+    platEl.innerHTML = plats.map((p,i)=>`
+      <div class="plat-bar-row">
+        <div class="plat-bar-name">${p}</div>
+        <div class="plat-bar-track"><div class="plat-bar-fill" style="width:${Math.round((platTotals[i]/platMax)*100)}%;background:${platColors[i]}"></div></div>
+        <div class="plat-bar-mentions">${platTotals[i]} mentions</div>
+      </div>`).join('');
+  }
+
+  // Industries
+  const indEl = document.getElementById('dash-industries');
+  const indMap = {};
+  clients.forEach(c => { if(c.industry) indMap[c.industry] = (indMap[c.industry]||0)+1; });
+  const indEntries = Object.entries(indMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(!indEntries.length) {
+    indEl.innerHTML = `<div style="font-size:13px;color:var(--text3);text-align:center;padding:20px">Add clients with industries to see breakdown</div>`;
+  } else {
+    const iMax = indEntries[0][1];
+    indEl.innerHTML = indEntries.map(([ind,cnt])=>`
+      <div class="plat-bar-row">
+        <div class="plat-bar-name" style="font-size:12px">${ind}</div>
+        <div class="plat-bar-track"><div class="plat-bar-fill" style="width:${Math.round((cnt/iMax)*100)}%;background:var(--ink)"></div></div>
+        <div class="plat-bar-mentions">${cnt} client${cnt>1?'s':''}</div>
+      </div>`).join('');
+  }
+}
+
+function scoreDisplay(score) {
+  if(score==null||score==='') return `<div class="vis-score score-none">—</div>`;
+  const s = +score;
+  const cls = s>=70?'score-a':s>=40?'score-b':'score-c';
+  return `<div class="vis-score ${cls}">${s}</div>`;
+}
+
+// ─────────────────────────────────────────────
+// CLIENT TABLE
+// ─────────────────────────────────────────────
+function renderClientTable() {
+  const q = (document.getElementById('clientSearch')?.value||'').toLowerCase();
+  const filtered = clients.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    (c.domain||'').toLowerCase().includes(q) ||
+    (c.industry||'').toLowerCase().includes(q) ||
+    (c.location||'').toLowerCase().includes(q)
+  );
+  document.getElementById('clients-meta').textContent = `${filtered.length} client${filtered.length!==1?'s':''}`;
+  const tbody = document.getElementById('clientTableBody');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state" style="padding:40px"><div class="empty-state-icon">🔍</div><div class="empty-state-title">${clients.length?'No matches':'No clients yet'}</div><div class="empty-state-sub">${clients.length?'Try a different search.':'Import a CSV or add clients manually.'}</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map((c,i) => {
+    const col = clientColor(clients.indexOf(c));
+    const platHtml = (c.platforms||[]).map(p => `<span class="plat-pill p">${p}</span>`).join('');
+    const mDisplay = c.mentions != null && c.mentions !== '' ? `<span class="mention-count" style="color:var(--msh)">${c.mentions}</span>` : `<span class="mention-na">—</span>`;
+    return `<tr>
+      <td>
+        <div class="client-name-cell">
+          <div class="client-initials" style="background:${col.bg};color:${col.fg}">${initials(c.name)}</div>
+          <div>
+            <div class="client-name-text">${c.name}</div>
+            <div class="client-domain">${c.domain||''}</div>
+          </div>
+        </div>
+      </td>
+      <td>${c.industry?`<span class="client-industry">${c.industry}</span>`:'<span style="color:var(--text3)">—</span>'}</td>
+      <td class="client-location">${c.location||'<span style="color:var(--text3)">—</span>'}</td>
+      <td>${mDisplay}</td>
+      <td>${scoreDisplay(c.score)}</td>
+      <td style="font-size:11px;color:var(--text3)">${c.last_scanned ? new Date(c.last_scanned).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
+      <td><div class="plat-row">${platHtml}</div></td>
+      <td>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openEditClient('${c.id}');event.stopPropagation()">Edit</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteClient('${c.id}');event.stopPropagation()">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// ADD / EDIT CLIENT MODAL
+// ─────────────────────────────────────────────
+function openAddClient() {
+  document.getElementById('modalClientTitle').textContent = 'Add GEO Client';
+  document.getElementById('modalClientSub').textContent = "Enter the client's details. You can always edit these later.";
+  document.getElementById('saveClientBtn').textContent = 'Add Client';
+  document.getElementById('editClientId').value = '';
+  ['cf-name','cf-domain','cf-industry','cf-location','cf-alts','cf-notes','cf-mentions','cf-score','cf-m-chatgpt','cf-m-perp','cf-m-claude','cf-m-bing'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.querySelectorAll('#modalClient input[type=checkbox]').forEach(cb => {
+    cb.checked = ['ChatGPT','Perplexity','Google AI'].includes(cb.value);
+  });
+  document.getElementById('cf-tier').value = 'growth';
+  clearFieldErrors();
+  document.getElementById('modalClient').classList.add('open');
+  setTimeout(()=>document.getElementById('cf-name').focus(),100);
+}
+
+function openEditClient(id) {
+  const c = clients.find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('modalClientTitle').textContent = 'Edit Client';
+  document.getElementById('modalClientSub').textContent = 'Update this client\'s details and scan results.';
+  document.getElementById('saveClientBtn').textContent = 'Save Changes';
+  document.getElementById('editClientId').value = id;
+  document.getElementById('cf-name').value = c.name||'';
+  document.getElementById('cf-domain').value = c.domain||'';
+  document.getElementById('cf-industry').value = c.industry||'';
+  document.getElementById('cf-location').value = c.location||'';
+  document.getElementById('cf-alts').value = c.alts||'';
+  document.getElementById('cf-tier').value = c.tier||'growth';
+  document.getElementById('cf-notes').value = c.notes||'';
+  document.getElementById('cf-mentions').value = c.mentions!=null?c.mentions:'';
+  document.getElementById('cf-score').value = c.score!=null?c.score:'';
+  document.getElementById('cf-m-chatgpt').value = c.m_chatgpt||'';
+  document.getElementById('cf-m-perp').value = c.m_perp||'';
+  document.getElementById('cf-m-claude').value = c.m_claude||'';
+  document.getElementById('cf-m-bing').value = c.m_bing||'';
+  document.querySelectorAll('#modalClient input[type=checkbox]').forEach(cb => {
+    cb.checked = (c.platforms||[]).includes(cb.value);
+  });
+  clearFieldErrors();
+  document.getElementById('modalClient').classList.add('open');
+}
+
+function closeClientModal() { document.getElementById('modalClient').classList.remove('open'); }
+
+function clearFieldErrors() {
+  document.querySelectorAll('.field-error').forEach(e => e.style.display='none');
+}
+
+function saveClient() {
+  const name = document.getElementById('cf-name').value.trim();
+  const domain = document.getElementById('cf-domain').value.trim();
+  clearFieldErrors();
+  let hasErr = false;
+  if(!name) { document.getElementById('err-name').style.display='block'; hasErr=true; }
+  if(!domain) { document.getElementById('err-domain').style.display='block'; hasErr=true; }
+  if(hasErr) return;
+
+  const platforms = [...document.querySelectorAll('#modalClient input[type=checkbox]:checked')].map(cb=>cb.value);
+  const mentions = document.getElementById('cf-mentions').value !== '' ? parseInt(document.getElementById('cf-mentions').value)||0 : null;
+  const score = document.getElementById('cf-score').value !== '' ? parseInt(document.getElementById('cf-score').value)||null : null;
+  const m_chatgpt = parseInt(document.getElementById('cf-m-chatgpt').value)||0;
+  const m_perp = parseInt(document.getElementById('cf-m-perp').value)||0;
+  const m_claude = parseInt(document.getElementById('cf-m-claude').value)||0;
+  const m_bing = parseInt(document.getElementById('cf-m-bing').value)||0;
+
+  // Auto-sum mentions if not set but per-platform are filled
+  const autoMentions = mentions != null ? mentions : (m_chatgpt+m_perp+m_claude+m_bing || null);
+
+  const editId = document.getElementById('editClientId').value;
+  const clientData = {
+    id: editId || ('c_' + Date.now()),
+    name, domain,
+    industry: document.getElementById('cf-industry').value.trim(),
+    location: document.getElementById('cf-location').value.trim(),
+    alts: document.getElementById('cf-alts').value.trim(),
+    tier: document.getElementById('cf-tier').value,
+    notes: document.getElementById('cf-notes').value.trim(),
+    platforms,
+    mentions: autoMentions,
+    score,
+    m_chatgpt, m_perp, m_claude, m_bing,
+    addedAt: new Date().toISOString(),
+  };
+
+  if(editId) {
+    const idx = clients.findIndex(x=>x.id===editId);
+    if(idx>-1) clients[idx] = clientData;
+  } else {
+    clients.push(clientData);
+  }
+  closeClientModal();
+  renderDashboard();
+  if(currentNav==='clients') renderClientTable();
+  updateSelects();
+}
+
+function deleteClient(id) {
+  if(!confirm('Remove this client?')) return;
+  clients = clients.filter(c=>c.id!==id);
+  renderClientTable();
+  renderDashboard();
+  updateSelects();
+}
+
+// ─────────────────────────────────────────────
+// CSV IMPORT
+// ─────────────────────────────────────────────
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file) handleCSVFile(file);
+}
+
+function handleCSVFile(file) {
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => parseCSV(e.target.result);
+  reader.readAsText(file);
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if(lines.length<2) return;
+  const headers = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/[^a-z0-9_]/g,'_'));
+  const rows = lines.slice(1).filter(l=>l.trim()).map(line => {
+    const vals = parseCSVLine(line);
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = (vals[i]||'').trim());
+    return obj;
+  });
+  pendingCSV = rows;
+  document.getElementById('csvRowCount').textContent = rows.length;
+
+  // Build preview
+  const showCols = ['name','domain','industry','location','geo_tier'];
+  const thead = `<thead><tr>${showCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>`;
+  const tbody = `<tbody>${rows.slice(0,10).map(r=>`<tr>${showCols.map(c=>`<td>${r[c]||''}</td>`).join('')}</tr>`).join('')}${rows.length>10?`<tr><td colspan="${showCols.length}" style="color:var(--text3);font-style:italic">…and ${rows.length-10} more</td></tr>`:''}</tbody>`;
+  document.getElementById('previewTable').innerHTML = thead+tbody;
+  document.getElementById('csvPreviewWrap').style.display='block';
+}
+
+function parseCSVLine(line) {
+  const result=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;}
+    else if(line[i]===','&&!inQ){result.push(cur);cur='';}
+    else{cur+=line[i];}
+  }
+  result.push(cur);
+  return result;
+}
+
+function importCSVClients() {
+  let added=0;
+  pendingCSV.forEach(row => {
+    const name = row.name||row.client_name||row.business_name||'';
+    if(!name) return;
+    const domain = row.domain||row.website||row.url||'';
+    clients.push({
+      id:'c_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+      name, domain,
+      industry: row.industry||row.vertical||'',
+      location: row.location||row.city||row.market||'',
+      tier: row.geo_tier||row.tier||'growth',
+      alts:'', notes:'',
+      platforms: ['ChatGPT','Perplexity','Google AI'],
+      mentions: null, score: null,
+      m_chatgpt:0, m_perp:0, m_claude:0, m_bing:0,
+      addedAt: new Date().toISOString(),
+    });
+    added++;
+  });
+  clearCSVPreview();
+  renderDashboard();
+  updateSelects();
+  const alert = document.getElementById('dash-alert');
+  alert.className='alert-banner alert-success';
+  alert.innerHTML=`✅ Imported ${added} client${added!==1?'s':''}. You can now add mention counts from each client's edit view.`;
+  alert.style.display='flex';
+  nav('dashboard');
+}
+
+function clearCSVPreview() {
+  pendingCSV=[];
+  document.getElementById('csvPreviewWrap').style.display='none';
+  document.getElementById('csvFile').value='';
+}
+
+function downloadTemplate() {
+  const csv = 'name,domain,industry,location,geo_tier\nRiverstone Dental,riverstonedental.com,Dental,Buffalo NY,growth\nAcme HVAC,acmehvac.com,HVAC,Rochester NY,starter';
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='msh-geo-clients-template.csv';
+  a.click();
+}
+
+// ─────────────────────────────────────────────
+// EVIDENCE LOG
+// ─────────────────────────────────────────────
+const sampleEvidence = [
+  {clientId:null, platform:'ChatGPT', platClass:'plat-chatgpt', prompt:'What is the best HVAC company in Buffalo, NY?', excerpt:'Based on reviews and local reputation, <mark class="mention-highlight">Acme HVAC</mark> in Buffalo is frequently recommended for residential and commercial HVAC work. Their response time and pricing transparency stand out.', tags:['First mention','Brand named'], score:5},
+  {clientId:null, platform:'Perplexity', platClass:'plat-perplexity', prompt:'Top-rated dentists in Rochester NY accepting new patients', excerpt:'<mark class="mention-highlight">Riverstone Dental</mark> appears in multiple local directories and patient review platforms as a top-rated practice in Rochester. riverstonedental.com is frequently cited.', tags:['Brand named','URL cited'], score:3},
+  {clientId:null, platform:'Google AI', platClass:'plat-google', prompt:'Best personal injury lawyers in Western New York', excerpt:'Several law firms in Western New York handle personal injury cases. The AI overview listed five firms but did not include the searched client.', tags:['Absent'], score:0},
+];
+
+function renderEvidence() {
+  const filter = document.getElementById('evidenceClientFilter')?.value||'';
+  const el = document.getElementById('evidenceList');
+  const ev = sampleEvidence.filter(e => !filter || e.clientId===filter);
+  if(!ev.length) {
+    el.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-title">No evidence yet</div><div class="empty-state-sub">Evidence entries appear here after running scans.</div></div>`;
+    return;
+  }
+  el.innerHTML = ev.map(e=>`
+    <div class="evidence-card">
+      <div class="evidence-header">
+        <span class="evidence-platform ${e.platClass}">${e.platform}</span>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">Score: ${e.score>0?'+':''}${e.score} pts</span>
+      </div>
+      <div class="evidence-prompt">"${e.prompt}"</div>
+      <div class="evidence-excerpt">${e.excerpt}</div>
+      <div class="evidence-tags">${e.tags.map(t=>{
+        const cls = t==='First mention'?'etag-first':t==='Brand named'?'etag-mentioned':t==='URL cited'?'etag-cited':'etag-absent';
+        return `<span class="etag ${cls}">${t}</span>`;
+      }).join('')}</div>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// REPORT
+// ─────────────────────────────────────────────
+function updateSelects() {
+  const rSelect = document.getElementById('reportClientSelect');
+  const eFilter = document.getElementById('evidenceClientFilter');
+  const runSelect = document.querySelector('#modalClient'); // not a select, skip
+  [rSelect, eFilter].forEach(sel => {
+    if(!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">Select a client…</option>` + clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+    if(cur) sel.value = cur;
+  });
+  // Update run modal selects if they exist
+  document.querySelectorAll('.run-client-select').forEach(sel => {
+    sel.innerHTML = clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  });
+}
+
+function populateReportSelect() {
+  updateSelects();
+  renderReport();
+}
+
+function highlightMentions(text, client) {
+  if(!text) return '';
+  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const terms = [client.name, client.domain||'', ...(client.alts||'').split(',').map(a=>a.trim())].filter(Boolean);
+  let result = safe;
+  terms.forEach(term => {
+    if(!term) return;
+    const re = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+    result = result.replace(re, m => `<mark style="background:#fef3c7;color:#92400e;border-radius:3px;padding:0 2px;font-weight:600">${m}</mark>`);
+  });
+  return result;
+}
+
+function getScoreLabel(score) {
+  if(score >= 70) return { label:'Strong', color:'var(--green)', bg:'var(--green-bg)', icon:'🏆' };
+  if(score >= 40) return { label:'Growing', color:'var(--amber)', bg:'var(--amber-bg)', icon:'📈' };
+  return { label:'Building', color:'var(--msh)', bg:'var(--msh-light)', icon:'🚀' };
+}
+
+function renderReport() {
+  const id = document.getElementById('reportClientSelect').value;
+  const el = document.getElementById('reportContent');
+  if(!id) {
+    el.innerHTML='<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Select a client above</div><div class="empty-state-sub">Choose a client to generate their GEO visibility report.</div></div>';
+    return;
+  }
+  const c = clients.find(x=>x.id===id);
+  if(!c) return;
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const scanDate = c.last_scanned ? new Date(c.last_scanned).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : today;
+  const mentions = c.mentions ?? 0;
+  const score = c.score != null ? +c.score : null;
+  const scoreInfo = score != null ? getScoreLabel(score) : null;
+  const plats = ['ChatGPT','Perplexity','Claude'];
+  const platVals = [c.m_chatgpt||0, c.m_perp||0, c.m_claude||0];
+  const platColors = ['#22c55e','#3b82f6','#cc785c'];
+  const maxPlat = Math.max(...platVals, 1);
+  const topPlatIdx = platVals.indexOf(Math.max(...platVals));
+  const amName = document.getElementById('amName')?.textContent || 'Your Mainstreethost team';
+  const scanData = c.scan_data || null;
+  let totalPrompts=0, mentionedPrompts=0, firstPositions=0, citedCount=0;
+  let winExamples=[], allPlatEvidence=[];
+  const platDisplayNames = {openai:'ChatGPT',perplexity:'Perplexity',claude:'Claude',google:'Google AI',bing:'Bing Copilot'};
+  const platBadgeStyles = {openai:'background:#ecfdf5;color:#166534',perplexity:'background:#eff4ff;color:#1d4ed8',claude:'background:#fdf4ee;color:#8b4513',google:'background:#fff7ed;color:#c2410c',bing:'background:#f0f9ff;color:#0369a1'};
+  if(scanData && scanData.platform_results) {
+    Object.entries(scanData.platform_results).forEach(([platKey, platData]) => {
+      if(!platData.prompt_log) return;
+      const displayName = platDisplayNames[platKey]||platKey;
+      const badgeStyle = platBadgeStyles[platKey]||'background:#f3f4f6;color:#374151';
+      platData.prompt_log.forEach(p => {
+        totalPrompts++;
+        if(p.mention_count>0){mentionedPrompts++;if(p.position==='first')firstPositions++;if(p.cited)citedCount++;if(winExamples.length<3)winExamples.push({...p,platform:displayName,badgeStyle});}
+      });
+      const mentioned=platData.prompt_log.filter(p=>p.mention_count>0);
+      const absent=platData.prompt_log.filter(p=>p.mention_count===0);
+      allPlatEvidence.push({displayName,badgeStyle,platKey,total:platData.total_mentions,mentioned,absent});
+    });
+  }
+  const mentionRate = totalPrompts>0?Math.round((mentionedPrompts/totalPrompts)*100):0;
+  const suggestions=[];
+  if(platVals[1]===0)suggestions.push({icon:'🔍',title:'Grow your Perplexity presence',body:`${c.name} isn't showing up on Perplexity yet. Perplexity is one of the fastest-growing AI search tools — especially popular with research-minded consumers. Getting cited here is a significant opportunity to reach more customers.`});
+  if(citedCount===0)suggestions.push({icon:'🔗',title:'Increase URL citation rate',body:`The AI platforms are mentioning ${c.name} by name but not yet linking directly to ${c.domain||'your website'}. Structured content like FAQ pages, Google Business Profile updates, and consistent directory listings help AI systems cite your website — driving more direct traffic.`});
+  if(firstPositions<mentionedPrompts*0.3)suggestions.push({icon:'⬆️',title:'Move from mentioned to recommended first',body:`${c.name} is appearing in AI results — great progress. The next step is consistently earning the top spot. Content that directly and clearly answers the questions customers are asking gives AI systems a reason to recommend you first, ahead of competitors.`});
+  suggestions.push({icon:'✍️',title:'Keep building AI-friendly content',body:`The more authoritative, helpful content ${c.name} has online — customer reviews, FAQ pages, local directory listings, and blog posts — the more confidently AI systems recommend them. This is the ongoing core of GEO work and directly impacts your score month over month.`});
+  suggestions.push({icon:'📊',title:'Track competitor visibility',body:`Knowing where ${c.name} stands is only half the picture. We can also track how often your top competitors appear in the same searches — giving you a clear view of your share of voice in AI search and where the biggest opportunities are.`});
+  suggestions.push({icon:'🌐',title:'Strengthen your overall digital presence',body:`AI systems pull from the full web — your website, Google Business Profile, Yelp, industry directories, news mentions, and more. A strong digital marketing foundation directly feeds your GEO performance. The stronger your overall online presence, the more AI systems trust and recommend you.`});
+
+  el.innerHTML = `<div style="font-family:var(--font);color:var(--text)">
+
+    <!-- REPORT HEADER — navy bar matching dashboard sidebar -->
+    <div style="background:var(--ink);border-radius:var(--r2);padding:28px 32px;margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <div style="width:24px;height:24px;background:var(--msh);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="13" height="10" viewBox="0 0 18 14" fill="none"><path d="M1 13L5 2L9 9L13 2L17 13" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span style="font-size:11px;font-weight:700;color:var(--msh);text-transform:uppercase;letter-spacing:1.2px">MAINSTREETHOST® · AI Visibility Report</span>
+        </div>
+        <div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.8px;line-height:1.1;margin-bottom:5px">${c.name}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4)">${c.industry||''}${c.location?' · '+c.location:''} · Scanned ${scanDate}</div>
+      </div>
+      ${scoreInfo?`
+      <div style="text-align:center;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:var(--r);padding:16px 22px">
+        <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px">Visibility Score</div>
+        <div style="font-size:44px;font-weight:800;color:${scoreInfo.color};letter-spacing:-2px;line-height:1">${score}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:3px">out of 100</div>
+      </div>`:''}
+    </div>
+
+    <!-- STAT CARDS — matching dashboard stat card style -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--msh)"></div>
+        <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px">Total AI Mentions</div>
+        <div style="font-size:30px;font-weight:800;color:var(--msh);letter-spacing:-1px;line-height:1">${mentions}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">across all platforms</div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#22c55e"></div>
+        <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px">Search Appearance Rate</div>
+        <div style="font-size:30px;font-weight:800;color:var(--text);letter-spacing:-1px;line-height:1">${mentionRate}%</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">of searches this month</div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#3b82f6"></div>
+        <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px">Platforms Active</div>
+        <div style="font-size:30px;font-weight:800;color:var(--text);letter-spacing:-1px;line-height:1">${platVals.filter(v=>v>0).length}<span style="font-size:16px;font-weight:600;color:var(--text3)">/3</span></div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">ChatGPT · Perplexity · Claude</div>
+      </div>
+    </div>
+
+    <!-- WHAT'S WORKING -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>
+        <div class="section-title">Here's what's working</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.6">Your GEO investment is paying off. Here's proof — real AI search results where ${c.name} was recommended to potential customers.</div>
+      ${mentions>0?`
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+          <div style="background:var(--green-bg);border:1px solid rgba(26,158,110,0.15);border-radius:var(--r);padding:14px;text-align:center">
+            <div style="font-size:22px;font-weight:800;color:var(--green);letter-spacing:-0.8px">${mentions}</div>
+            <div style="font-size:11px;color:var(--green);margin-top:2px;font-weight:600">AI mentions this month</div>
+          </div>
+          <div style="background:#eff4ff;border:1px solid rgba(59,130,246,0.15);border-radius:var(--r);padding:14px;text-align:center">
+            <div style="font-size:22px;font-weight:800;color:#1d4ed8;letter-spacing:-0.8px">${mentionRate}%</div>
+            <div style="font-size:11px;color:#1d4ed8;margin-top:2px;font-weight:600">of searches included you</div>
+          </div>
+          <div style="background:var(--msh-light);border:1px solid rgba(43,191,191,0.15);border-radius:var(--r);padding:14px;text-align:center">
+            <div style="font-size:16px;font-weight:800;color:var(--msh);letter-spacing:-0.3px">${plats[topPlatIdx]}</div>
+            <div style="font-size:11px;color:var(--msh);margin-top:2px;font-weight:600">strongest platform</div>
+          </div>
+        </div>
+        ${winExamples.length>0?`
+          <div class="section-meta" style="margin-bottom:10px;text-transform:uppercase;letter-spacing:0.6px;font-weight:700">What AI said about ${c.name}</div>
+          ${winExamples.map(w=>`
+            <div style="margin-bottom:10px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--surface);border-bottom:1px solid var(--border)">
+                <span style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">${w.platform}</span>
+                <div style="display:flex;gap:5px">
+                  ${w.position==='first'?'<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#fef3c7;color:#92400e;font-weight:700">Top recommendation</span>':'<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#dcfce7;color:#166534;font-weight:700">Mentioned</span>'}
+                  ${w.cited?'<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#dbeafe;color:#1d4ed8;font-weight:600">Website cited</span>':''}
+                </div>
+              </div>
+              <div style="padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.7">${highlightMentions((w.response||w.snippet||'').substring(0,300),c)}${(w.response||w.snippet||'').length>300?'…':''}</div>
+            </div>`).join('')}`:''}
+      `:`<div style="padding:18px;background:var(--surface);border-radius:var(--r);text-align:center;color:var(--text3);font-size:13px">Import scan results to see what the AI is saying about ${c.name}.</div>`}
+    </div>
+
+    <!-- PLATFORM BREAKDOWN — matching dashboard chart style -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:6px;height:6px;border-radius:50%;background:#3b82f6"></div>
+        <div class="section-title">Where you're showing up</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6">We continuously monitor ${c.name} across the major AI platforms people use every day.</div>
+      ${plats.map((p,i)=>`
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:600;width:120px;flex-shrink:0;color:var(--text)">${p}</div>
+          <div style="flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden">
+            <div style="height:100%;width:${platVals[i]>0?Math.max(Math.round((platVals[i]/maxPlat)*100),6):0}%;background:${platColors[i]};border-radius:4px;transition:width 0.4s ease"></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:${platVals[i]>0?'var(--text)':'var(--text3)'};min-width:90px;text-align:right">${platVals[i]>0?platVals[i]+' mention'+(platVals[i]!==1?'s':''):'Not yet active'}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- FULL EVIDENCE -->
+    ${scanData&&allPlatEvidence.length>0?`
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--msh)"></div>
+        <div class="section-title">AI search results — full breakdown</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6">We run a wide range of searches each month — from direct brand searches to broader local discovery searches — to get a complete picture of how ${c.name} appears across AI platforms. Mentions are highlighted.</div>
+      ${allPlatEvidence.map(plat=>`
+        <div style="margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:11px;padding:3px 10px;border-radius:4px;font-weight:700;${plat.badgeStyle}">${plat.displayName}</span>
+            <span class="section-meta">${plat.total} mention${plat.total!==1?'s':''} · ${plat.mentioned.length} search${plat.mentioned.length!==1?'es':''} with results</span>
+          </div>
+          ${plat.mentioned.map(p=>{
+            const category = p.prompt.toLowerCase().includes(c.name.toLowerCase()) ? 'Brand search' : 'Local discovery search';
+            const shortResponse = (p.response||p.snippet||'').substring(0,280);
+            return `<div style="margin-bottom:8px;border:1px solid #d1fae5;border-radius:var(--r);overflow:hidden">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#f0fdf4;border-bottom:1px solid #d1fae5">
+                <span style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px">${category}</span>
+                <div style="display:flex;gap:5px">
+                  ${p.position==='first'?'<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#fef3c7;color:#92400e;font-weight:600">Top pick</span>':'<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#dcfce7;color:#166534;font-weight:600">Mentioned</span>'}
+                  ${p.cited?'<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#dbeafe;color:#1d4ed8;font-weight:600">Cited</span>':''}
+                </div>
+              </div>
+              <div style="padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.7">${highlightMentions(shortResponse,c)}${(p.response||p.snippet||'').length>280?'…':''}</div>
+            </div>`;
+          }).join('')}
+          ${plat.absent.length>0?`
+            <div style="padding:10px 14px;background:var(--surface);border-radius:var(--r);border:1px solid var(--border)">
+              <span style="font-size:12px;color:var(--text3)"><strong style="color:var(--text2)">${plat.absent.length} additional search${plat.absent.length!==1?'es':''}</strong> monitored where ${c.name} wasn't yet mentioned — opportunities for continued GEO work.</span>
+            </div>`:''}
+        </div>`).join('')}
+    </div>`:''
+    }
+
+    <!-- THE BIG PICTURE — navy card matching dashboard -->
+    <div style="background:var(--ink);border-radius:var(--r2);padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--msh)"></div>
+        <div style="font-size:14px;font-weight:700;color:#fff;letter-spacing:-0.1px">The big picture</div>
+      </div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.7;margin-bottom:18px">When someone opens ChatGPT, Perplexity, or Claude and asks for the best ${c.industry||'business'} in ${c.location||'your area'}, your GEO strategy determines whether ${c.name} shows up — or a competitor does. Every mention is a potential customer who found you without ever clicking a paid ad.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.07);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--msh);margin-bottom:5px">🏗️ What we've built</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.8);line-height:1.6">Established ${c.name}'s presence across ${[c.m_chatgpt,c.m_perp,c.m_claude||0].filter(v=>v>0).length} AI platform${[c.m_chatgpt,c.m_perp,c.m_claude||0].filter(v=>v>0).length!==1?'s':''}, generated ${mentions} mention${mentions!==1?'s':''}, and set a baseline score of ${score??'—'}/100.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.07);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--msh);margin-bottom:5px">📈 Why it takes ongoing effort</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.8);line-height:1.6">AI search is not a one-time fix. Platforms update constantly, competitors are optimizing too, and authority builds over time.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.07);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--msh);margin-bottom:5px">🔄 AI search is always evolving</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.8);line-height:1.6">ChatGPT, Perplexity, and Claude update their models regularly. Staying visible requires continuous optimization.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.07);border-radius:var(--r);padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--msh);margin-bottom:5px">💡 Digital marketing feeds GEO</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.8);line-height:1.6">Your website, reviews, and directory listings all feed into how AI systems perceive ${c.name}. Strong foundations make GEO work.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--msh)"></div>
+        <div class="section-title">Recommended next steps</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6">Based on this scan, here's what we recommend to keep growing ${c.name}'s AI visibility.</div>
+      <div style="display:grid;gap:10px">
+        ${suggestions.map((s,i)=>`
+          <div style="display:flex;gap:12px;padding:14px 16px;background:${i===0?'var(--msh-light)':'var(--surface)'};border-radius:var(--r);border:1px solid ${i===0?'rgba(43,191,191,0.2)':'var(--border)'}">
+            <div style="font-size:20px;flex-shrink:0;line-height:1.3">${s.icon}</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px">${s.title}</div>
+              <div style="font-size:12px;color:var(--text2);line-height:1.6">${s.body}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- UPSELL — teal accent matching brand -->
+    <div style="background:var(--msh-light);border:1px solid rgba(43,191,191,0.25);border-radius:var(--r2);padding:24px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--msh)"></div>
+        <div style="font-size:14px;font-weight:700;color:var(--msh);letter-spacing:-0.1px">Ready to take the next step?</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px">GEO is just one part of a complete digital marketing strategy. Mainstreethost offers SEO, content marketing, web design, and more — all working together to grow your visibility online and in AI search.</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:#fff;border-radius:var(--r);padding:14px;text-align:center;border:1px solid var(--border)">
+          <div style="font-size:18px;margin-bottom:5px">🔎</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text)">SEO Services</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">Rank in traditional & AI search</div>
+        </div>
+        <div style="background:#fff;border-radius:var(--r);padding:14px;text-align:center;border:1px solid var(--border)">
+          <div style="font-size:18px;margin-bottom:5px">✍️</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text)">Content Marketing</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">Build authority AI systems trust</div>
+        </div>
+        <div style="background:#fff;border-radius:var(--r);padding:14px;text-align:center;border:1px solid var(--border)">
+          <div style="font-size:18px;margin-bottom:5px">⭐</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text)">Reputation Management</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">More reviews = more AI mentions</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">Talk to your account manager about how these services can work together with your GEO plan.</div>
+    </div>
+
+    <!-- FOOTER / AM CONTACT -->
+    <div style="background:var(--ink);border-radius:var(--r2);padding:22px 28px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--msh);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">${(amName==='Your Name'?'MSH':amName).split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()}</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:1px">${amName==='Your Name'?'Your Account Manager':amName}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35)">${amRole} · Mainstreethost</div>
+          ${amEmail||amPhone?`<div style="margin-top:5px;display:flex;gap:12px;flex-wrap:wrap">
+            ${amEmail?`<a href="mailto:${amEmail}" style="font-size:11px;color:var(--msh);text-decoration:none">✉ ${amEmail}</a>`:''}
+            ${amPhone?`<span style="font-size:11px;color:rgba(255,255,255,0.45)">📞 ${amPhone}</span>`:''}
+          </div>`:`<div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:3px;font-style:italic">Click your name in the sidebar to add contact details</div>`}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:800;font-size:13px;color:var(--msh);letter-spacing:0.5px">MAINSTREETHOST®</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:3px">GEO Visibility Report · ${today}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:2px">mainstreethost.com</div>
+      </div>
+    </div>
+
+  </div>`;
+}
+function importScanResults(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    let data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch(err) {
+      showAlert('dash-alert', 'warn', '⚠️ Could not read that file — make sure it\'s the scan_results.json from the GEO agent.');
+      return;
+    }
+
+    if (!data.results || !Array.isArray(data.results)) {
+      showAlert('dash-alert', 'warn', '⚠️ File format not recognised. Expected scan_results.json from geo_agent.py.');
+      return;
+    }
+
+    let matched = 0, added = 0;
+
+    data.results.forEach(result => {
+      // Try to match by client_id first, then by name
+      let client = clients.find(c => c.id === result.client_id);
+      if (!client) client = clients.find(c => c.name.toLowerCase() === result.client_name.toLowerCase());
+
+      if (client) {
+        // Update existing client with scan data
+        client.mentions    = result.total_mentions;
+        client.score       = result.visibility_score;
+        client.m_chatgpt   = result.m_chatgpt || 0;
+        client.m_perp      = result.m_perp || 0;
+        client.m_google    = result.m_google || 0;
+        client.m_bing      = result.m_bing || 0;
+        client.m_claude    = result.m_claude || 0;
+        client.last_scanned = result.scanned_at;
+        client.scan_data   = result;  // full evidence including all AI responses
+        matched++;
+      } else {
+        // Client not found in tracker — add them automatically
+        clients.push({
+          id:           result.client_id || ('c_import_' + Date.now() + '_' + Math.random().toString(36).slice(2,5)),
+          name:         result.client_name,
+          domain:       result.domain || '',
+          industry:     '',
+          location:     '',
+          alts:         '',
+          tier:         'growth',
+          notes:        'Imported from agent scan',
+          platforms:    data.platforms.map(p => p === 'openai' ? 'ChatGPT' : p === 'perplexity' ? 'Perplexity' : p),
+          mentions:     result.total_mentions,
+          score:        result.visibility_score,
+          m_chatgpt:    result.m_chatgpt || 0,
+          m_perp:       result.m_perp || 0,
+          m_google:     result.m_google || 0,
+          m_bing:       result.m_bing || 0,
+          m_claude:     result.m_claude || 0,
+          last_scanned: result.scanned_at,
+          scan_data:    result,
+          addedAt:      new Date().toISOString(),
+        });
+        added++;
+      }
+    });
+
+    // Save scan to history
+    scanHistory.unshift({
+      run_id:      data.scan_run_id,
+      imported_at: new Date().toISOString(),
+      platforms:   data.platforms,
+      client_count: data.client_count,
+      results_summary: data.results.map(r => ({
+        name: r.client_name,
+        mentions: r.total_mentions,
+        score: r.visibility_score
+      }))
+    });
+
+    // Reset file input so same file can be re-imported
+    document.getElementById('scanJsonFile').value = '';
+
+    renderDashboard();
+    updateSelects();
+    if (currentNav === 'clients') renderClientTable();
+
+    const msg = `✅ Scan imported — ${matched} client${matched!==1?'s':''} updated${added ? ', ' + added + ' new client' + (added!==1?'s':'') + ' added' : ''}. Run ID: ${data.scan_run_id}`;
+    showAlert('dash-alert', 'success', msg);
+    nav('dashboard');
+  };
+  reader.readAsText(file);
+}
+
+function showAlert(elId, type, msg) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const cls = type === 'success' ? 'alert-success' : type === 'warn' ? 'alert-warn' : 'alert-info';
+  el.className = 'alert-banner ' + cls;
+  el.innerHTML = msg;
+  el.style.display = 'flex';
+  // Auto-hide after 8 seconds
+  setTimeout(() => { el.style.display = 'none'; }, 8000);
+}
+
+// Scan history store
+let scanHistory = [];
+
+// ─────────────────────────────────────────────
+// ACCOUNT MANAGER
+// ─────────────────────────────────────────────
+function openEditAm() {
+  document.getElementById('am-input').value = amName==='Your Name'?'':amName;
+  document.getElementById('am-role-input').value = amRole==='GEO Strategist'?'':amRole;
+  document.getElementById('am-email-input').value = amEmail||'';
+  document.getElementById('am-phone-input').value = amPhone||'';
+  document.getElementById('modalAm').classList.add('open');
+  setTimeout(()=>document.getElementById('am-input').focus(),100);
+}
+function closeAm() { document.getElementById('modalAm').classList.remove('open'); }
+function saveAm() {
+  const n = document.getElementById('am-input').value.trim();
+  const r = document.getElementById('am-role-input').value.trim();
+  const e = document.getElementById('am-email-input').value.trim();
+  const p = document.getElementById('am-phone-input').value.trim();
+  if(n) { amName=n; document.getElementById('amName').textContent=n; document.getElementById('amAv').textContent=initials(n); }
+  if(r) { amRole=r; document.querySelector('.am-role').textContent=r+' · MSH'; }
+  if(e) amEmail=e;
+  if(p) amPhone=p;
+  closeAm();
+}
+
+// ─────────────────────────────────────────────
+// MODAL BACKDROP CLOSE
+// ─────────────────────────────────────────────
+['modalClient','modalAm'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if(e.target===e.currentTarget) {
+      if(id==='modalClient') closeClientModal();
+      if(id==='modalAm') closeAm();
+    }
+  });
+});
+
+// Enter key in AM modal
+document.getElementById('am-role-input').addEventListener('keydown', e => { if(e.key==='Enter') saveAm(); });
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderDashboard();
+
+function printReport() {
+  // Make sure we're on the report panel
+  if (currentNav !== 'report') {
+    nav('report');
+    setTimeout(printReport, 300);
+    return;
+  }
+
+  // Check a client is selected
+  const id = document.getElementById('reportClientSelect').value;
+  if (!id) {
+    alert('Please select a client first.');
+    return;
+  }
+
+  // Give the DOM a moment to render, then print
+  setTimeout(() => window.print(), 100);
+}
+</script>
+</body>
+</html>
