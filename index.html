@@ -1243,7 +1243,7 @@ function buildEvidenceFromScan(results, platforms) {
           platform:   platDisplayNames[platKey] || platKey,
           platClass:  platClasses[platKey] || 'plat-chatgpt',
           prompt:     p.prompt,
-          excerpt:    highlightMentions((p.response||p.snippet||'').substring(0,350), client || {name:result.client_name, alts:''}),
+          excerpt:    highlightMentions((p.response||p.snippet||''), client || {name:result.client_name, alts:''}),
           tags,
           score:      p.score || 0,
           scanned_at: result.scanned_at,
@@ -1620,7 +1620,7 @@ function renderReport() {
                   ${w.cited?'<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#dbeafe;color:#1d4ed8;font-weight:600">Website cited</span>':''}
                 </div>
               </div>
-              <div style="padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.7">${highlightMentions((w.response||w.snippet||'').substring(0,300),c)}${(w.response||w.snippet||'').length>300?'…':''}</div>
+              <div style="padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.7">${highlightMentions((w.response||w.snippet||''),c)}</div>
             </div>`).join('')}`:''}
       `:`<div style="padding:18px;background:var(--surface);border-radius:var(--r);text-align:center;color:var(--text3);font-size:13px">Import scan results to see what the AI is saying about ${c.name}.</div>`}
     </div>
@@ -1668,7 +1668,7 @@ function renderReport() {
           </div>
           ${plat.mentioned.map(p=>{
             const category = p.prompt.toLowerCase().includes(c.name.toLowerCase()) ? 'Brand search' : 'Local discovery search';
-            const shortResponse = (p.response||p.snippet||'').substring(0,280);
+            const shortResponse = (p.response||p.snippet||'');
             return `<div style="margin-bottom:8px;border:1px solid #d1fae5;border-radius:var(--r);overflow:hidden">
               <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#f0fdf4;border-bottom:1px solid #d1fae5">
                 <span style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px">${category}</span>
@@ -1677,7 +1677,7 @@ function renderReport() {
                   ${p.cited?'<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#dbeafe;color:#1d4ed8;font-weight:600">Cited</span>':''}
                 </div>
               </div>
-              <div style="padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.7">${highlightMentions(shortResponse,c)}${(p.response||p.snippet||'').length>280?'…':''}</div>
+              <div style="padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.7">${highlightMentions(shortResponse,c)}</div>
             </div>`;
           }).join('')}
           ${plat.absent.length>0?`
