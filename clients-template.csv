@@ -1,0 +1,4 @@
+name,domain,industry,location,biztype,alts,services,geo_tier,notes
+Happi House Example,happihouseexample.com,Chinese restaurant,San Jose CA,local,"Happi House, HappiHouse SJ","dim sum, takeout, catering",growth,Local restaurant — example row
+Cackle Hatchery Example,cacklehatcheryexample.com,poultry hatchery,,national,"Chickens for Backyards","baby chicks, hatching eggs, ducks",growth,National e-commerce — leave location blank
+Acme Industrial Supply Example,acmeindustrialexample.com,industrial supplies,Chicago IL,b2b,"Acme Supply","wholesale fasteners, MRO, safety equipment",growth,B2B example — biztype changes the prompts used
