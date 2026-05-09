@@ -1,0 +1,550 @@
+{
+  "updated_at": "2026-05-09T02:13:13.058Z",
+  "client_count": 32,
+  "clients": [
+    {
+      "id": "c_001",
+      "name": "Happi House",
+      "domain": "happihouse.com",
+      "industry": "Chinese restaurant",
+      "location": "San Jose CA",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_002",
+      "name": "Cackle Hatchery",
+      "domain": "cacklehatchery.com",
+      "industry": "poultry hatchery",
+      "location": "",
+      "alts": "Chickens for Backyards",
+      "services": "",
+      "biztype": "national",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_003",
+      "name": "Great River Door Company",
+      "domain": "greatriverdoor.com",
+      "industry": "custom wood doors",
+      "location": "Brainerd MN",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_004",
+      "name": "Bay Springs Country Inn & Marina",
+      "domain": "bayspringscountryinn.com",
+      "industry": "country inn, campground and marina",
+      "location": "Centre AL",
+      "alts": "Bay Springs Country Inn & Campground, Bay Springs Country Inn Campground & Marina",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_005",
+      "name": "Jim Laurier Fine Art & Illustration",
+      "domain": "jimlaurier.com",
+      "industry": "fine art and illustration",
+      "location": "",
+      "alts": "Jim Laurier Art & Illustration, James Laurier Fine Art",
+      "services": "",
+      "biztype": "national",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_006",
+      "name": "Beach Cities Coatings",
+      "domain": "beachcitiescoatings.com",
+      "industry": "waterproofing and painting contractor",
+      "location": "San Diego CA",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_007",
+      "name": "Cathy's Wallpapering",
+      "domain": "cathyswallpaperingkc.com",
+      "industry": "wallpapering and painting contractor",
+      "location": "Kansas City MO",
+      "alts": "Cathys Wallpapering",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_008",
+      "name": "LA Frame Co",
+      "domain": "laframeco.com",
+      "industry": "custom picture framing and art restoration",
+      "location": "Green Brook NJ",
+      "alts": "L.A. Frame Co., L.A. Frame",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_009",
+      "name": "LC Events",
+      "domain": "lceventsco.com",
+      "industry": "wedding and event planning",
+      "location": "New York NY",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_010",
+      "name": "Kim Parker Plants",
+      "domain": "kimparkerplants.com",
+      "industry": "interior plantscaping and plant maintenance",
+      "location": "San Francisco Bay Area CA",
+      "alts": "GSV Enterprises",
+      "services": "",
+      "biztype": "b2b",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_011",
+      "name": "Infinity IPS",
+      "domain": "infinity-data.com",
+      "industry": "mortgage due diligence and quality control",
+      "location": "Tampa FL",
+      "alts": "",
+      "services": "",
+      "biztype": "b2b",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_012",
+      "name": "Lizas Brittanys",
+      "domain": "lizasbrittanys.com",
+      "industry": "Brittany dog breeder",
+      "location": "Brandenburg KY",
+      "alts": "Liza's Brittanys",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_013",
+      "name": "Bio Sheen Services LLC",
+      "domain": "biosheenservices.com",
+      "industry": "crime scene and biohazard cleanup",
+      "location": "Oklahoma City OK",
+      "alts": "Biosheen Services",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_014",
+      "name": "Elite White Goldens",
+      "domain": "elitewhitegoldens.com",
+      "industry": "white and English cream golden retriever breeder",
+      "location": "Caro MI",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_015",
+      "name": "Huckle Bee Farms",
+      "domain": "hucklebeefarms.com",
+      "industry": "artisan infused honey and raw honey",
+      "location": "",
+      "alts": "Huckle Bee Farms LLC",
+      "services": "",
+      "biztype": "national",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_016",
+      "name": "Competitive Edge Bowling",
+      "domain": "competitiveedgebowling.com",
+      "industry": "bowling pro shop and coaching",
+      "location": "Plainville CT",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_017",
+      "name": "Inland Dry Pro",
+      "domain": "inlandempireleakdetections.com",
+      "industry": "water leak detection and remediation",
+      "location": "Riverside CA",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_018",
+      "name": "Carricos Leatherworks LLC",
+      "domain": "carricoleather.com",
+      "industry": "custom leatherwork and Civil War replica tack",
+      "location": "Edna KS",
+      "alts": "Carrico's Leatherworks",
+      "services": "",
+      "biztype": "national",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_019",
+      "name": "Garcias Security Training",
+      "domain": "garciassecuritytraining.com",
+      "industry": "security guard training and licensing",
+      "location": "Hayward CA",
+      "alts": "Garcia's Security Training",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_020",
+      "name": "MA Kinane Art",
+      "domain": "makinaneart.net",
+      "industry": "professional calligraphy and painting",
+      "location": "Forest Lake MN",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_021",
+      "name": "Youngbloods Hardwood Flooring",
+      "domain": "youngbloodsflooring.com",
+      "industry": "hardwood flooring installation and refinishing",
+      "location": "Richardson TX",
+      "alts": "Youngblood's Hardwood Flooring, Youngblood Flooring",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_022",
+      "name": "Petal and Stem by Jen",
+      "domain": "petalandstemlocal.com",
+      "industry": "florist and flower shop",
+      "location": "Huntsville TX",
+      "alts": "Petal and Stem",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_023",
+      "name": "Always Remember Photography",
+      "domain": "alwaysrememberphoto.com",
+      "industry": "children and family portrait photography",
+      "location": "Evans City PA",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_024",
+      "name": "Howards Creek Authentic Beer Cheese",
+      "domain": "howardscreek.com",
+      "industry": "artisan beer cheese and specialty food",
+      "location": "Lexington KY",
+      "alts": "Howard's Creek Beer Cheese",
+      "services": "",
+      "biztype": "national",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_025",
+      "name": "B & F Estate Sales",
+      "domain": "estatesalesfl.net",
+      "industry": "estate sales and antique services",
+      "location": "Plantation FL",
+      "alts": "B and F Estate Sales",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_026",
+      "name": "Macbeth Farms Interiorscapes",
+      "domain": "macbethfarm.com",
+      "industry": "interior office landscaping and indoor plant maintenance",
+      "location": "Elmwood Park NJ",
+      "alts": "MacBeth Farm",
+      "services": "",
+      "biztype": "b2b",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_027",
+      "name": "The Perfect Shot LLC",
+      "domain": "perfectshotllc.com",
+      "industry": "blank ammunition and dummy rounds",
+      "location": "Fort Worth TX",
+      "alts": "The Perfect Shot",
+      "services": "",
+      "biztype": "national",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_028",
+      "name": "Events With Flare",
+      "domain": "eventswithflare.com",
+      "industry": "event planning",
+      "location": "North Reading MA",
+      "alts": "Events With Flare LLC",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_029",
+      "name": "General Premium Corp",
+      "domain": "genprem.com",
+      "industry": "custom promotional products and branded merchandise",
+      "location": "",
+      "alts": "General Premium Corporation",
+      "services": "",
+      "biztype": "b2b",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_030",
+      "name": "Horizon Carpet Upholstery Tile & Grout Cleaners Inc",
+      "domain": "mycarpetguys.com",
+      "industry": "carpet cleaning and tile and grout cleaning",
+      "location": "Peoria AZ",
+      "alts": "Horizon Carpet Guys, My Carpet Guys",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_031",
+      "name": "Aquaman Inc",
+      "domain": "aquamanatl.com",
+      "industry": "custom aquarium design and installation",
+      "location": "Cumming GA",
+      "alts": "Aquaman Atlanta",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "c_032",
+      "name": "Flying H Genetics",
+      "domain": "flyinghgenetics.com",
+      "industry": "beef cattle and bull breeder",
+      "location": "",
+      "alts": "",
+      "services": "",
+      "biztype": "national",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": ""
+    }
+  ]
+}
