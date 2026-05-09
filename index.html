@@ -428,6 +428,7 @@ select.field-input { cursor: pointer; }
         <button id="pick-toggle-10" onclick="setPickMode(10)" style="font-size:11px;font-weight:600;padding:4px 8px;border-radius:5px;border:none;cursor:pointer;background:var(--msh);color:#fff;transition:all 0.15s">10</button>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="downloadClientsJson()" title="Download your client list for the scanner">⬇ clients.json</button>
+      <button class="btn btn-ghost btn-sm" onclick="syncClientsToGithub()" title="Push clients.json to GitHub so the scheduled scanner can pick it up">⬆ Sync to GitHub</button>
       <button class="btn btn-ghost btn-sm" onclick="nav('import')">↑ Import CSV</button>
       <button class="btn btn-ghost btn-sm" onclick="openAddClient()">+ Add Client</button>
       <button class="btn btn-ghost btn-sm" onclick="document.getElementById('scanJsonFile').click()" style="border-color:var(--msh);color:var(--msh)">⚡ Import Scan Results</button>
@@ -630,9 +631,26 @@ select.field-input { cursor: pointer; }
         <span id="key-save-status" style="font-size:12px;color:var(--green)"></span>
       </div>
     </div>
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-top:16px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">GitHub Sync</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:18px;line-height:1.6">Push your client list to GitHub so the scheduled scanner can pick it up. Pull the latest clients.json down to sync between devices. Requires a personal access token with <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">repo</code> scope.</div>
+      <div class="field" style="margin-bottom:14px">
+        <label class="field-label">GitHub Personal Access Token <span style="color:var(--text3);font-weight:400">(stored in your browser only)</span></label>
+        <input class="field-input" id="key-gh-pat" type="password" placeholder="github_pat_… or ghp_…" autocomplete="off">
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveGithubPat()">Save Token</button>
+        <button class="btn btn-ghost" onclick="syncClientsToGithub()">⬆ Push clients.json</button>
+        <button class="btn btn-ghost" onclick="pullClientsFromGithub()">⬇ Pull clients.json</button>
+        <span id="gh-status" style="font-size:12px;color:var(--text3)"></span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:14px;line-height:1.6">
+        <strong style="color:var(--text2)">Repo:</strong> <span id="gh-repo-display">allisonmarranca/msh-geo-tracker</span> · <strong style="color:var(--text2)">Branch:</strong> main · <strong style="color:var(--text2)">File:</strong> clients.json
+      </div>
+    </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px">
       <div style="font-size:12px;color:var(--text3);line-height:1.7">
-        <strong style="color:var(--text2)">🔒 Privacy note:</strong> API keys are stored in your browser's localStorage and never leave your device except when making direct API calls to OpenAI, Perplexity, and Anthropic. They are not sent to GitHub or any other server. Clear them any time using the button above.
+        <strong style="color:var(--text2)">🔒 Privacy note:</strong> API keys and your GitHub token are stored in your browser's localStorage and never leave your device except when making direct calls to the relevant services. Clear them any time using the buttons above.
       </div>
     </div>
   </div>
@@ -808,6 +826,19 @@ select.field-input { cursor: pointer; }
 // Format: https://raw.githubusercontent.com/USERNAME/REPO/main/scan_results.json
 // ─────────────────────────────────────────────
 const GITHUB_SCAN_URL = 'https://raw.githubusercontent.com/allisonmarranca/msh-geo-tracker/main/scan_results.json';
+const GITHUB_CLIENTS_URL = 'https://raw.githubusercontent.com/allisonmarranca/msh-geo-tracker/main/clients.json';
+
+// GitHub repo coords used by the "Sync to GitHub" button
+const GH_OWNER  = 'allisonmarranca';
+const GH_REPO   = 'msh-geo-tracker';
+const GH_BRANCH = 'main';
+const GH_CLIENTS_PATH = 'clients.json';
+
+// localStorage keys
+const LS_CLIENTS  = 'msh_clients_v1';
+const LS_EVIDENCE = 'msh_evidence_v1';
+const LS_AM       = 'msh_am_v1';
+const LS_GH_PAT   = 'msh_gh_pat';
 
 let clients = [];
 let mentionMode = 'branded'; // 'branded' = brand searches only, 'all' = all searches
@@ -818,6 +849,40 @@ let amEmail = '';
 let amPhone = '';
 let pendingCSV = [];
 let currentNav = 'dashboard';
+
+// ─────────────────────────────────────────────
+// PERSISTENCE — save client list, evidence, and AM info to localStorage
+// so adding a client doesn't disappear on refresh.
+// ─────────────────────────────────────────────
+function persistClients() {
+  try { localStorage.setItem(LS_CLIENTS, JSON.stringify(clients)); } catch(e) { console.warn('persist clients failed', e); }
+}
+function persistEvidence() {
+  try { localStorage.setItem(LS_EVIDENCE, JSON.stringify(evidenceLog)); } catch(e) { /* quota — ignore */ }
+}
+function persistAm() {
+  try { localStorage.setItem(LS_AM, JSON.stringify({amName, amRole, amEmail, amPhone})); } catch(e) {}
+}
+function loadFromLocalStorage() {
+  try {
+    const c = JSON.parse(localStorage.getItem(LS_CLIENTS) || 'null');
+    if (Array.isArray(c)) clients = c;
+  } catch(e) {}
+  try {
+    const ev = JSON.parse(localStorage.getItem(LS_EVIDENCE) || 'null');
+    if (Array.isArray(ev)) window._restoredEvidence = ev; // applied after evidenceLog declared
+  } catch(e) {}
+  try {
+    const a = JSON.parse(localStorage.getItem(LS_AM) || 'null');
+    if (a) {
+      if (a.amName)  amName  = a.amName;
+      if (a.amRole)  amRole  = a.amRole;
+      if (a.amEmail) amEmail = a.amEmail;
+      if (a.amPhone) amPhone = a.amPhone;
+    }
+  } catch(e) {}
+}
+loadFromLocalStorage();
 
 const COLORS = [
   {bg:'#fff0ec',fg:'#2bbfbf'},
@@ -1108,6 +1173,7 @@ function saveClient() {
     }
     clients.push(clientData);
   }
+  persistClients();
   closeClientModal();
   renderDashboard();
   if(currentNav==='clients') renderClientTable();
@@ -1117,6 +1183,7 @@ function saveClient() {
 function deleteClient(id) {
   if(!confirm('Remove this client?')) return;
   clients = clients.filter(c=>c.id!==id);
+  persistClients();
   renderClientTable();
   renderDashboard();
   updateSelects();
@@ -1191,6 +1258,7 @@ function importCSVClients() {
     });
     added++;
   });
+  persistClients();
   clearCSVPreview();
   renderDashboard();
   updateSelects();
@@ -1220,6 +1288,7 @@ function downloadTemplate() {
 // ─────────────────────────────────────────────
 // Evidence log — built from scan results on import
 let evidenceLog = [];
+if (Array.isArray(window._restoredEvidence)) { evidenceLog = window._restoredEvidence; }
 
 function buildEvidenceFromScan(results, platforms) {
   const platDisplayNames = {openai:'ChatGPT',perplexity:'Perplexity',claude:'Claude'};
@@ -1405,6 +1474,15 @@ function renderReport() {
     return;
   }
   const scanDate = c.last_scanned ? new Date(c.last_scanned).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : today;
+  // Freshness label so the client knows how recent the data is
+  let scanFreshness = 'No scan yet';
+  let freshnessTone = 'stale'; // 'fresh' | 'aging' | 'stale'
+  if (c.last_scanned) {
+    const days = Math.max(0, Math.round((Date.now() - new Date(c.last_scanned).getTime()) / 86400000));
+    const ago = days === 0 ? 'today' : (days === 1 ? '1 day ago' : days + ' days ago');
+    scanFreshness = 'Scan from ' + scanDate + ' · ' + ago;
+    freshnessTone = days <= 14 ? 'fresh' : (days <= 35 ? 'aging' : 'stale');
+  }
   const mentions = c.mentions ?? 0;
   const plats = ['ChatGPT','Perplexity','Claude'];
   const platVals = [c.m_chatgpt||0, c.m_perp||0, c.m_claude||0];
@@ -1512,9 +1590,10 @@ function renderReport() {
         </div>
         <span style="font-size:11px;font-weight:700;color:var(--msh);text-transform:uppercase;letter-spacing:1.2px">MAINSTREETHOST® · AI Visibility Report</span>
         <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(43,191,191,0.12);color:var(--msh);border:1px solid rgba(43,191,191,0.25);letter-spacing:0.5px">GEO Client</span>
+        <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.4px;${freshnessTone==='fresh'?'background:rgba(26,158,110,0.15);color:#4ade80;border:1px solid rgba(26,158,110,0.3)':freshnessTone==='aging'?'background:rgba(196,122,0,0.15);color:#fbbf24;border:1px solid rgba(196,122,0,0.3)':'background:rgba(192,57,43,0.15);color:#f87171;border:1px solid rgba(192,57,43,0.3)'}">${scanFreshness}</span>
       </div>
       <div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.8px;line-height:1.1;margin-bottom:5px">${c.name}</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">${c.industry||''}${c.location?' · '+c.location:''} · Scanned ${scanDate}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:24px">${c.industry||''}${c.location?' · '+c.location:''} · Report generated ${today}</div>
       <!-- 4 key metrics in header -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
         <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:var(--r);padding:14px 16px">
@@ -1948,6 +2027,7 @@ function saveAm() {
   if(r) { amRole=r; document.querySelector('.am-role').textContent=r+' · MSH'; }
   if(e) amEmail=e;
   if(p) amPhone=p;
+  persistAm();
   closeAm();
 }
 
@@ -2043,6 +2123,8 @@ async function autoLoadFromGitHub() {
     recordScanHistory(data.results, data.scan_run_id, data.generated_at);
     buildEvidenceFromScan(data.results, data.platforms);
 
+    persistClients();
+    persistEvidence();
     renderDashboard();
     updateSelects();
 
@@ -2056,6 +2138,18 @@ async function autoLoadFromGitHub() {
   }
 }
 
+// Hydrate AM display from localStorage values that were loaded before the DOM existed
+function hydrateAmFromStorage() {
+  const amNameEl = document.getElementById('amName');
+  const amAvEl   = document.getElementById('amAv');
+  const amRoleEl = document.querySelector('.am-role');
+  if (amNameEl && amName !== 'Your Name') amNameEl.textContent = amName;
+  if (amAvEl   && amName !== 'Your Name') amAvEl.textContent   = initials(amName);
+  if (amRoleEl && amRole) amRoleEl.textContent = amRole + ' · MSH';
+}
+hydrateAmFromStorage();
+renderDashboard();
+if (clients.length) updateSelects();
 autoLoadFromGitHub();
 
 
@@ -2230,6 +2324,130 @@ function loadApiKeyFields() {
     const val = localStorage.getItem('msh_key_'+name);
     if(el && val) el.value = val;
   });
+  const patEl = document.getElementById('key-gh-pat');
+  const patVal = localStorage.getItem(LS_GH_PAT);
+  if (patEl && patVal) patEl.value = patVal;
+}
+
+// ─────────────────────────────────────────────
+// GITHUB SYNC — push/pull clients.json via the GitHub API
+// ─────────────────────────────────────────────
+function saveGithubPat() {
+  const v = document.getElementById('key-gh-pat').value.trim();
+  if (!v) { localStorage.removeItem(LS_GH_PAT); setGhStatus('Token cleared.', 'var(--text3)'); return; }
+  localStorage.setItem(LS_GH_PAT, v);
+  setGhStatus('✓ Token saved (stays in your browser).', 'var(--green)');
+}
+function setGhStatus(msg, color) {
+  const el = document.getElementById('gh-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = color || 'var(--text3)';
+}
+function getGithubPat() { return localStorage.getItem(LS_GH_PAT) || ''; }
+
+async function ghGetFileSha(path) {
+  const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeURIComponent(path) + '?ref=' + GH_BRANCH;
+  const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + getGithubPat(), 'Accept': 'application/vnd.github+json' } });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('GitHub GET ' + res.status + ': ' + (await res.text()).slice(0,200));
+  return (await res.json()).sha;
+}
+
+// btoa() chokes on multibyte UTF-8 — go via TextEncoder
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin);
+}
+
+async function syncClientsToGithub() {
+  if (!getGithubPat()) {
+    if (confirm('No GitHub token saved. Open Settings to add one?')) nav('settings');
+    return;
+  }
+  if (currentNav !== 'settings') nav('settings');
+  setGhStatus('Pushing clients.json…', 'var(--text3)');
+
+  const exportClients = clients.map(c => ({
+    id: c.id, name: c.name,
+    domain: c.domain || '', industry: c.industry || '',
+    location: c.location || '', alts: c.alts || '',
+    services: c.services || '', biztype: c.biztype || 'local',
+    tier: c.tier || 'growth',
+    platforms: c.platforms || ['ChatGPT','Perplexity','Claude'],
+    notes: c.notes || ''
+  }));
+  const payload = { updated_at: new Date().toISOString(), client_count: exportClients.length, clients: exportClients };
+  const content = JSON.stringify(payload, null, 2);
+
+  try {
+    const sha = await ghGetFileSha(GH_CLIENTS_PATH);
+    const body = { message: 'Update clients.json (' + exportClients.length + ' clients) via dashboard', content: utf8ToBase64(content), branch: GH_BRANCH };
+    if (sha) body.sha = sha;
+    const url = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeURIComponent(GH_CLIENTS_PATH);
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + getGithubPat(), 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('GitHub PUT ' + res.status + ': ' + (await res.text()).slice(0,200));
+    setGhStatus('✓ Pushed ' + exportClients.length + ' clients to GitHub.', 'var(--green)');
+  } catch(err) {
+    setGhStatus('✗ ' + err.message, 'var(--red)');
+  }
+}
+
+async function pullClientsFromGithub() {
+  if (currentNav !== 'settings') nav('settings');
+  setGhStatus('Pulling clients.json…', 'var(--text3)');
+  try {
+    const res = await fetch(GITHUB_CLIENTS_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('No clients.json on GitHub yet (HTTP ' + res.status + ')');
+    const payload = await res.json();
+    const incoming = Array.isArray(payload.clients) ? payload.clients : (Array.isArray(payload) ? payload : []);
+    if (!incoming.length) throw new Error('clients.json was empty');
+
+    let updated = 0, added = 0;
+    incoming.forEach(c => {
+      const local = clients.find(x => x.id === c.id) || clients.find(x => x.name.toLowerCase() === c.name.toLowerCase());
+      if (local) {
+        Object.assign(local, {
+          name: c.name, domain: c.domain || local.domain,
+          industry: c.industry || local.industry,
+          location: c.location || local.location,
+          alts: c.alts || local.alts,
+          services: c.services || local.services,
+          biztype: c.biztype || local.biztype,
+          tier: c.tier || local.tier,
+          platforms: c.platforms || local.platforms,
+          notes: c.notes || local.notes
+        });
+        updated++;
+      } else {
+        clients.push({
+          id: c.id || ('c_' + Date.now() + '_' + Math.random().toString(36).slice(2,5)),
+          name: c.name, domain: c.domain || '', industry: c.industry || '',
+          location: c.location || '', alts: c.alts || '', services: c.services || '',
+          biztype: c.biztype || 'local', tier: c.tier || 'geo',
+          platforms: c.platforms || ['ChatGPT','Perplexity','Claude'],
+          notes: c.notes || '',
+          mentions: null, score: null,
+          m_chatgpt: 0, m_perp: 0, m_claude: 0, m_bing: 0,
+          addedAt: new Date().toISOString()
+        });
+        added++;
+      }
+    });
+    persistClients();
+    renderDashboard();
+    if (currentNav === 'clients') renderClientTable();
+    updateSelects();
+    setGhStatus('✓ Pulled · ' + updated + ' updated · ' + added + ' added.', 'var(--green)');
+  } catch(err) {
+    setGhStatus('✗ ' + err.message, 'var(--red)');
+  }
 }
 
 function getApiKeys() {
