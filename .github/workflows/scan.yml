@@ -39,6 +39,7 @@ jobs:
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
           SCAN_LIMIT:         ${{ github.event.inputs.scan_limit }}
+          PYTHONUNBUFFERED:   "1"
         run: python scripts/scan.py
 
       - name: Commit & push updated scan_results.json
