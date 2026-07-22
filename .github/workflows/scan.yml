@@ -1,10 +1,11 @@
 name: GEO Scan
 
 on:
-  # Weekly on Mondays at 09:00 UTC (~5am ET / 4am ET DST). Adjust if you want a
-  # different cadence — see https://crontab.guru
+  # Monthly on the 1st at 05:00 UTC — finishes hours before the GEO Intelligence
+  # report workflow (ai-visibility-checker, 1st at 10:00 UTC) pulls this data.
+  # Adjust cadence via crontab.guru if needed.
   schedule:
-    - cron: "0 9 * * 1"
+    - cron: "0 5 1 * *"
   # Lets you trigger a run manually from the Actions tab
   workflow_dispatch:
     inputs:
