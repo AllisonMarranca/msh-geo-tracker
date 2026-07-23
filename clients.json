@@ -545,6 +545,23 @@
         "claude"
       ],
       "notes": ""
+    },
+    {
+      "id": "c_033",
+      "name": "24 7 Animal & Pest Control",
+      "domain": "24sevenpest.com",
+      "industry": "Pest Control",
+      "location": "St Louis, MO",
+      "alts": "",
+      "services": "",
+      "biztype": "local",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": "Enrolled via intel /admin"
     }
   ]
 }
