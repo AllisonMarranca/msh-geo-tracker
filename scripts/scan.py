@@ -3,7 +3,7 @@
 GEO Visibility Scanner.
 
 Reads clients.json from the repo root, runs each client's prompts against
-OpenAI (gpt-4o-search-preview), Perplexity (sonar), and Anthropic (claude
+OpenAI (gpt-4o-search-preview), Perplexity (sonar), and Anthropic (claude-haiku
 with web_search tool), scores responses, and writes scan_results.json
 in the schema the dashboard's autoLoadFromGitHub() expects.
 
@@ -151,7 +151,7 @@ def call_claude(api_key: str, prompt: str) -> str:
         "https://api.anthropic.com/v1/messages",
         {"Content-Type": "application/json", "x-api-key": api_key, "anthropic-version": "2023-06-01"},
         {
-            "model": "claude-opus-4-5",
+            "model": "claude-haiku-4-5",
             "max_tokens": 600,
             "tools": [{"type": "web_search_20250305", "name": "web_search"}],
             "messages": [{"role": "user", "content": prompt}],
