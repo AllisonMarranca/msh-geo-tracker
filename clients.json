@@ -562,6 +562,23 @@
         "claude"
       ],
       "notes": "Enrolled via intel /admin"
+    },
+    {
+      "id": "c_034",
+      "name": "HH Fabrication",
+      "domain": "hhfab.com",
+      "industry": "Skid Steer Attachments & Equipment",
+      "location": "",
+      "alts": "",
+      "services": "",
+      "biztype": "ecommerce",
+      "tier": "growth",
+      "platforms": [
+        "ChatGPT",
+        "Perplexity",
+        "claude"
+      ],
+      "notes": "Enrolled via intel /admin"
     }
   ]
 }
